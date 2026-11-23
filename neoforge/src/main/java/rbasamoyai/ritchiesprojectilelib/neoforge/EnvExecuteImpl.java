@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 public class EnvExecuteImpl {
 
 	public static void executeOnClient(Supplier<Runnable> sup) {
-        if (FMLEnvironment.dist.isClient()) {
+        if (FMLEnvironment.getDist().isClient()) {
             sup.get().run();
         }
     }

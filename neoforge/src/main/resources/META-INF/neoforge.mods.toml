@@ -1,7 +1,7 @@
 modLoader = "javafml"
-loaderVersion = "[4,)"
+loaderVersion = "[1,)"
 issueTrackerURL = "https://github.com/Wagers-of-Industrial-Warfare/RitchiesProjectileLib/issues"
-license = "MIT License"
+license = "MIT"
 
 [[mods]]
 modId = "ritchiesprojectilelib"
@@ -11,16 +11,19 @@ authors = "rbasamoyai"
 description = '''A Minecraft modding library for better projectiles.'''
 logoFile = "icon.png"
 
+[[mixins]]
+config = "ritchiesprojectilelib.mixins.json"
+
 [[dependencies.ritchiesprojectilelib]]
 modId = "neoforge"
-mandatory = true
+type = "required"
 versionRange = "[${neoforge_version},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.ritchiesprojectilelib]]
 modId = "minecraft"
-mandatory = true
-versionRange = "${minecraft_version}"
+type = "required"
+versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"

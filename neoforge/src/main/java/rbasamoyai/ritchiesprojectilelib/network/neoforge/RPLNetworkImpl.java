@@ -7,9 +7,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import rbasamoyai.ritchiesprojectilelib.RitchiesProjectileLib;
 import rbasamoyai.ritchiesprojectilelib.network.RootPacket;
@@ -20,14 +20,14 @@ public class RPLNetworkImpl {
     @SubscribeEvent
     public static void register(final RegisterPayloadHandlersEvent event) {
         final PayloadRegistrar registrar = event.registrar(VERSION);
-		registrar.commonBidirectional(NeoForgePacket.TYPE, NeoForgePacket.STREAM_CODEC, new DirectionalPayloadHandler<>(NeoForgePacket::handle, NeoForgePacket::handle));
+		registrar.commonBidirectional(NeoForgePacket.TYPE, NeoForgePacket.STREAM_CODEC, NeoForgePacket::handle, NeoForgePacket::handle);
     }
 
     public static void sidedInit() {
 	}
 
 	public static void sendToServer(RootPacket pkt) {
-		PacketDistributor.sendToServer(new NeoForgePacket(pkt));
+		ClientPacketDistributor.sendToServer(new NeoForgePacket(pkt));
 	}
 
 	public static void sendToClientPlayer(RootPacket pkt, ServerPlayer player) {

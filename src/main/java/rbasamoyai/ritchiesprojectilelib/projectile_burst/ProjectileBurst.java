@@ -17,6 +17,8 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -33,22 +35,19 @@ public abstract class ProjectileBurst extends Projectile {
 	protected ProjectileBurst(EntityType<? extends ProjectileBurst> entityType, Level level) { super(entityType, level); }
 
 	@Override
-	protected void addAdditionalSaveData(CompoundTag tag) {
-		ListTag list = new ListTag();
+	protected void addAdditionalSaveData(ValueOutput output) {
+		ValueOutput.TypedOutputList<CompoundTag> list = output.list("SubProjectiles", CompoundTag.CODEC);
 		for (SubProjectile subProjectile : this.subProjectiles)
 			list.add(subProjectile.toTag());
-		tag.put("SubProjectiles", list);
-		tag.putInt("Age", this.age);
+		output.putInt("Age", this.age);
 	}
 
 	@Override
-	protected void readAdditionalSaveData(CompoundTag tag) {
+	protected void readAdditionalSaveData(ValueInput input) {
 		this.subProjectiles.clear();
-		ListTag list = tag.getList("SubProjectiles", Tag.TAG_COMPOUND);
-		int sz = list.size();
-		for (int i = 0; i < sz; ++i)
-			this.subProjectiles.add(SubProjectile.fromTag(list.getCompound(i)));
-		this.age = tag.getInt("Age");
+		for (CompoundTag entry : input.listOrEmpty("SubProjectiles", CompoundTag.CODEC))
+			this.subProjectiles.add(SubProjectile.fromTag(entry));
+		this.age = input.getIntOr("Age", 0);
 	}
 
     //? if <1.21 {
@@ -69,7 +68,7 @@ public abstract class ProjectileBurst extends Projectile {
 
 	@Override
 	public void tick() {
-		if (!this.level().isClientSide && (this.tickCount % 10 == 1))
+		if (!this.level().isClientSide() && (this.tickCount % 10 == 1))
 			this.syncAllDataToServer();
 		for (Iterator<SubProjectile> iter = this.subProjectiles.iterator(); iter.hasNext(); ) {
 			SubProjectile subProjectile = iter.next();
@@ -164,10 +163,10 @@ public abstract class ProjectileBurst extends Projectile {
 		}
 
 		public static SubProjectile fromTag(CompoundTag tag) {
-			ListTag posTag = tag.getList("Pos", Tag.TAG_DOUBLE);
-			ListTag velTag = tag.getList("Vel", Tag.TAG_DOUBLE);
-			return new SubProjectile(new double[]{ posTag.getDouble(0), posTag.getDouble(1), posTag.getDouble(2) },
-				new double[]{ velTag.getDouble(0), velTag.getDouble(1), velTag.getDouble(2) });
+			ListTag posTag = tag.getListOrEmpty("Pos");
+			ListTag velTag = tag.getListOrEmpty("Vel");
+			return new SubProjectile(new double[]{ posTag.getDoubleOr(0, 0.0), posTag.getDoubleOr(1, 0.0), posTag.getDoubleOr(2, 0.0) },
+				new double[]{ velTag.getDoubleOr(0, 0.0), velTag.getDoubleOr(1, 0.0), velTag.getDoubleOr(2, 0.0) });
 		}
 	}
 
